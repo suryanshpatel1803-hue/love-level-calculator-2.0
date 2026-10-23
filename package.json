@@ -1,0 +1,12 @@
+{
+  "name": "love-quiz-tictactoe",
+  "version": "4.0.0",
+  "private": true,
+  "description": "Love Quiz & Tic-Tac-Toe Game for Two",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "express": "^4.21.2",
+    "socket.io": "^4.8.1"
+  }
+}

@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0d0105">
+<title>Love Level & Tic-Tac-Toe 💗</title>
+<link rel="stylesheet" href="/style.css">
+<script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+<div id="bgHearts" class="bg-floating-hearts" aria-hidden="true"></div>
+
+<main class="shell">
+  <header class="brand">
+    <div class="brand-left" onclick="navTo('home')" style="cursor:pointer;">
+      <div class="logo">♥</div>
+      <div>
+        <p class="eyebrow">A LITTLE GAME FOR TWO</p>
+        <h1>Love Level</h1>
+        <p class="sub">How well do you really know your person?</p>
+      </div>
+    </div>
+    <button id="moreGamesBtn" class="more-games-nav-btn" onclick="navTo('arcadeModeSelect')">🎮 Play Tic-Tac-Toe</button>
+  </header>
+
+  <!-- HOME VIEW -->
+  <section id="home" class="panel">
+    <div class="pill">💌 Couple quiz · 1–1000 points</div>
+    <h2>Make your own love quiz</h2>
+    <p class="muted">One partner secretly enters the answers. Share the link with your person and see how many they know.</p>
+    <label>Your name<input id="creator" maxlength="40" placeholder="e.g. Alex"></label>
+    <label>Select number of questions:
+      <select id="count">
+        <option value="5">5 questions · Super Quick</option>
+        <option value="10" selected>10 questions · Quick & Fun</option>
+        <option value="15">15 questions · Romantic</option>
+        <option value="20">20 questions · Date Night</option>
+        <option value="30">30 questions · Deep Connection</option>
+        <option value="50">50 questions · Mega Love Challenge</option>
+        <option value="100">100 questions · Ultimate Soulmate Edition</option>
+      </select>
+    </label>
+    <div id="answerFields" class="answer-fields"></div>
+    <button id="createBtn" class="primary">Create our private quiz 💗</button>
+    <p id="requiredInfo" class="tiny"></p>
+  </section>
+
+  <!-- SHARE VIEW -->
+  <section id="share" class="panel hidden">
+    <div class="big-heart">💞</div>
+    <h2>Your quiz is ready!</h2>
+    <p class="muted">Copy this link and send it to your partner.</p>
+    <div class="linkbox"><input id="shareUrl" readonly><button id="copyBtn" class="secondary">Copy</button></div>
+    <p class="tiny">Keep the link private. Anyone with this link can take the quiz.</p>
+    <button id="goPlay" class="primary">Try the quiz on this device</button>
+  </section>
+
+  <!-- PLAY VIEW -->
+  <section id="play" class="panel hidden">
+    <div class="pill">💗 YOUR TURN</div>
+    <h2 id="playTitle">Ready, sweetheart?</h2>
+    <p id="progress" class="muted"></p>
+    <label>Your name<input id="player" maxlength="40" placeholder="Enter your name"></label>
+    <div id="questions"></div>
+    <button id="submitBtn" class="primary">Reveal my Love Level 💘</button>
+  </section>
+
+  <!-- RESULT VIEW -->
+  <section id="result" class="panel hidden">
+    <div class="big-heart">💖</div>
+    <p class="eyebrow">YOUR LOVE LEVEL</p>
+    <div id="score" class="score">---</div>
+    <p id="resultTitle" class="result-title"></p>
+    <p id="resultText" class="muted"></p>
+    <div class="stats"><div><strong id="correct">0</strong><span>Correct</span></div><div><strong id="wrong">0</strong><span>Missed</span></div></div>
+    <div class="review-heading">✨ Answer Comparison ✨</div>
+    <div id="review" class="review"></div>
+    
+    <div class="dev-banner">
+      <span>Designed & Developed with 💗 by</span>
+      <strong>MAXI BRUNO KE PAPA</strong>
+    </div>
+
+    <button class="primary" onclick="navTo('home')">Make another quiz 💞</button>
+  </section>
+
+  <!-- ARCADE MODE SELECT VIEW -->
+  <section id="arcadeModeSelect" class="panel hidden">
+    <div class="panel-header-row">
+      <div>
+        <div class="pill">🕹️ TIC-TAC-TOE DUEL</div>
+        <h2>Choose How to Play! 💖</h2>
+      </div>
+      <button class="secondary back-btn" onclick="navTo('home')">← Love Quiz</button>
+    </div>
+    <p class="muted">Play Tic-Tac-Toe with hearts (❤️) vs kisses (💋):</p>
+
+    <div class="arcade-choice-container">
+      <div class="arcade-choice-card" onclick="openGameScreen('local')">
+        <div class="choice-icon">🛋️</div>
+        <h3>Play Side-by-Side</h3>
+        <p>Pass & Play on a single device together.</p>
+        <span class="choice-tag">1 Device · Pass & Play →</span>
+      </div>
+      <div class="arcade-choice-card" onclick="openGameScreen('online')">
+        <div class="choice-icon">🌐</div>
+        <h3>Play Online Long-Distance</h3>
+        <p>Connect two phones in real-time with code.</p>
+        <span class="choice-tag">2 Devices · Live Online →</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ONLINE CONNECT PAGE -->
+  <section id="onlineConnectPage" class="panel hidden">
+    <div class="panel-header-row">
+      <div>
+        <div class="pill">🌐 ONLINE CONNECT</div>
+        <h2>Connect with Partner 🔗</h2>
+      </div>
+      <button class="secondary back-btn" onclick="navTo('arcadeModeSelect')">← Back</button>
+    </div>
+    <p class="muted">Generate code or enter partner's code to play Tic-Tac-Toe live!</p>
+
+    <div class="connection-box-full" style="background:rgba(22,2,8,0.85);border:1.5px solid #57081b;border-radius:20px;padding:24px 18px;margin-top:15px;">
+      <div id="connStepSelect">
+        <div style="display:flex;flex-direction:column;gap:14px;max-width:420px;margin:20px auto;">
+          <button class="primary" style="margin:0;padding:14px;font-size:15px;" onclick="createGlobalCoupleSession()">
+            🔑 Generate Connection Code (Host)
+          </button>
+          <div style="text-align:center;color:var(--text-muted);font-weight:700;font-size:13px;">— OR ENTER PARTNER'S CODE —</div>
+          <div style="display:flex;gap:10px;">
+            <input id="inputCoupleCode" maxlength="8" placeholder="Enter 6-digit Code" style="margin:0;text-align:center;font-size:16px;text-transform:uppercase;">
+            <button class="secondary" style="margin:0;padding:12px 20px;white-space:nowrap;font-weight:800;" onclick="joinGlobalCoupleSession()">
+              Connect →
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="connStepWaiting" class="hidden" style="text-align:center;padding:15px 0;">
+        <div class="big-heart" style="font-size:42px;animation:heartBeat 1.5s infinite;">⏳</div>
+        <h3 style="margin:8px 0;color:#fff;">Share this Connection Code with your partner:</h3>
+        <div class="session-code-display" id="displayCoupleSessionCode" style="display:inline-block;background:#ff4d79;color:#fff;font-size:22px;font-weight:900;letter-spacing:4px;padding:6px 16px;border-radius:10px;margin:10px 0;font-family:monospace;">------</div>
+        <p class="muted" style="font-size:13px;margin:10px 0 6px;">Or share direct invite link:</p>
+        <div class="linkbox" style="max-width:420px;margin:0 auto 14px;">
+          <input id="coupleShareUrl" readonly style="font-size:12px;">
+          <button id="copyCoupleLinkBtn" class="secondary" onclick="copyCoupleLink()">Copy Link</button>
+        </div>
+        <p class="tiny" style="color:#ff85a2;animation:pulseLogo 1.5s infinite;margin-bottom:18px;">Waiting for partner to join...</p>
+        <button class="secondary" style="padding:8px 18px;margin:0;" onclick="cancelWaitingSession()">Cancel</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEDICATED GAME PAGE -->
+  <section id="gamePage" class="panel hidden">
+    <div class="game-top-bar" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <button class="secondary back-btn" onclick="navTo('arcadeModeSelect')">← Back</button>
+      <h2 id="activeGameHeading" style="margin:0;font-size:22px;color:#ff4d79;">💖 Tic-Tac-Toe</h2>
+      <div id="gameStatusPill" class="pill">Single Device</div>
+    </div>
+
+    <div id="activeGameContainer" class="game-arena-surface"></div>
+  </section>
+
+  <footer>
+    Made with 💗 · Developed by <strong>MAXI BRUNO KE PAPA</strong>
+  </footer>
+
+  <div id="customModalOverlay" class="custom-modal-overlay hidden" aria-hidden="true">
+    <div class="custom-modal-card">
+      <div class="custom-modal-icon" id="modalIcon">💗</div>
+      <h3 id="modalTitle" class="custom-modal-title">Enter Nickname</h3>
+      <p id="modalDesc" class="custom-modal-desc">Please enter your nickname to connect with your partner.</p>
+      <div id="modalInputContainer" class="custom-modal-input-wrap">
+        <input id="modalInputField" maxlength="30" placeholder="e.g. Alex" autocomplete="off">
+      </div>
+      <div class="custom-modal-btn-row">
+        <button id="modalCancelBtn" class="secondary" style="padding:10px 18px;margin:0;">Cancel</button>
+        <button id="modalConfirmBtn" class="primary" style="padding:10px 22px;margin:0;">Confirm 💗</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="/app.js"></script>
+</body>
+</html>
